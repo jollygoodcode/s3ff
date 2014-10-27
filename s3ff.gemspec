@@ -8,7 +8,7 @@ Gem::Specification.new do |gem|
   gem.email         = ['choonkeat@gmail.com']
   gem.description   = 'Direct S3 upload using CORS with s3_file_field + paperclip'
   gem.summary       = 'Direct S3 upload using CORS with s3_file_field + paperclip'
-  gem.homepage      = 'https://github.com/choonkeat/s3ff'
+  gem.homepage      = 'https://github.com/jollygoodcode/s3ff'
 
   gem.files         = Dir['{lib,app}/**/*'] + ['README.md']
   gem.executables   = gem.files.grep(%r{^bin/}).map { |f| File.basename(f) }
