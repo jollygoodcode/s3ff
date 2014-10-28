@@ -1,6 +1,6 @@
 module S3FF
   module ViewHelper
-    def include_s3ff_templates(map = { _direct_url: 'result.url', _file_name: 'result.filename', _file_size: 'result.filesize', _content_type: 'result.filetype' })
+    def include_s3ff_templates(map = { _direct_url: 'result.url' }) # extras: , _file_name: 'result.filename', _file_size: 'result.filesize', _content_type: 'result.filetype' })
       <<-EOM
       <div style="display:none;">
         <script id="s3ff_label" type="text/x-tmpl">

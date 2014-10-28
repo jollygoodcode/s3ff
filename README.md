@@ -21,35 +21,11 @@ Or install it yourself as:
 
 ## Usage
 
-### 0. Add initializer for s3_file_field:
+### 1. Configure s3_file_field
 
-```ruby
-if defined?(S3FileField) && ENV['AWS_KEY']
-  cdn_hostname = ENV.fetch('CDN_HOSTNAME') { ENV['S3_BUCKET'] && "#{ENV['S3_BUCKET']}.s3.amazonaws.com" }
-  S3FileField.config do |c|
-    c.access_key_id = ENV['AWS_KEY']
-    c.secret_access_key = ENV['AWS_SECRET']
-    c.bucket = ENV['S3_BUCKET']
-    c.region = ENV['S3_BUCKET_REGION'] || 'us-west-2'
-    c.url = "//#{cdn_hostname}" if cdn_hostname # S3 API endpoint (optional), eg. "https://#{c.bucket}.s3.amazonaws.com/"
-    # c.acl = "public-read"
-    # c.expiration = 10.hours.from_now.utc.iso8601
-    # c.max_file_size = 100.megabytes
-    # c.conditions = []
-    # c.key_starts_with = 'uploads/
-    # c.ssl = true # if true, force SSL connection
-  end
+add a config like `sample/config_s3_file_field.rb` into your Rails `config/initializers/` directory
 
-elsif defined?(S3FileField) # for when no S3 is configured, fallback to regular `file_field`
-  S3FileField::FormBuilder.class_eval do
-    def s3_file_field(method, options = {})
-      @template.file_field(@object_name, method, options)
-    end
-  end
-end
-```
-
-### 1. Add javascript
+### 2. Add javascript
 
 in your application.js
 
@@ -57,24 +33,24 @@ in your application.js
 //= require s3ff
 ```
 
-### 2. Change `file_field` input to use `s3_file_field`
+### 3. Change `file_field` input to use `s3_file_field`
 
-```
+``` haml
 = form_for :user do |f|
   = f.s3_file_field :avatar
 ```
 
 or if you're using `simple_form`
 
-```
+``` haml
 = simple_form_for :user do |f|
   = f.input :avatar do
     = f.s3_file_field :avatar, :class => "form-control"
 ```
 
-### 3. Add footer
+### 4. Add footer
 
-```
+``` haml
 = include_s3ff_templates
 ```
 
@@ -84,22 +60,19 @@ NOTE: Feel free to modify & render the templates manually, but keep the `s3ff_` 
 
 To illustate, if you have a file field like this
 
-```
+``` html
 <input type="file" name="user[avatar]">
 ```
 
-When `s3ff` kicks in, it would upgrade the field to a `s3_file_field`. When your user chooses a file, it will be uploaded, with a progress indicator, directly into your S3 bucket (see `s3_file_field` gem for configuration). Your `form` will be disabled during the upload and re-enabled once upload completes. After this process, 4 new hidden form fields will be attached to your form:
+When `s3ff` kicks in, it would upgrade the field to a `s3_file_field`. When your user chooses a file, it will be uploaded, with a progress indicator, directly into your S3 bucket (see `s3_file_field` gem for configuration). Your `form` will be disabled during the upload and re-enabled once upload completes. After this process, a new hidden form field will be attached to your form:
 
-```
+``` html
 <input type="file" name="user[avatar_direct_url]" value="https://....">
-<input type="file" name="user[avatar_file_name]" value="face.png">
-<input type="file" name="user[avatar_file_size]" value="162534">
-<input type="file" name="user[avatar_content_type]" value="image/png">
 ```
 
 ## Code changes to your app
 
-`s3ff` designed to minimize moving parts and code changes to your Rails app - all it does is give you 4 form fields in return for every direct s3 file upload that happened in your user's browser.
+`s3ff` designed to minimize moving parts and code changes to your Rails app - all it does is give you new hidden form fields in return for every direct s3 file upload that happened in your user's browser.
 
 How you deal with these form fields are entirely up to you. Here's a simple way:
 
@@ -107,43 +80,52 @@ How you deal with these form fields are entirely up to you. Here's a simple way:
 
 If your controller was specifying
 
-```
+``` ruby
 params.require(:user).permit(:avatar)
 ```
 
 It would need to be changed to accept the new form fields
 
-```
-params.require(:user).permit(:avatar,
-  :avatar_direct_url,
-  :avatar_file_name,
-  :avatar_file_size,
-  :avatar_content_type
-)
+``` ruby
+params.require(:user).permit(:avatar, :avatar_direct_url)
 ```
 
 #### 2. Upgrade model to also accept direct url
 
 If your model was originally
 
-```
+``` ruby
 class User < ActiveRecord::Base
   has_attached_file :avatar
+  validates_attachment_content_type :avatar, content_type: /\Aimage\/.*\Z/
 end
 ```
 
-Download the file from S3 when given `avatar_direct_url`. This leave all your existing Paperclip code and logic unchanged.
+Download the file from S3 when given `avatar_direct_url`. This leaves all your existing Paperclip code and logic unchanged.
 
-```
+``` ruby
 class User < ActiveRecord::Base
   has_attached_file :avatar
+  validates_attachment_content_type :avatar, content_type: /\Aimage\/.*\Z/
 
-  attr_accessor :avatar_direct_url
+  # s3ff changes
+
   def avatar_direct_url=(value)
-    self.avatar = open(value) if value.present?
+    self.avatar =
+      ActionDispatch::Http::UploadedFile.new(
+        tempfile: open(value),
+        filename: File.basename(value),
+      ).tap do |upload|
+      upload.content_type = Paperclip::ContentTypeDetector.new(upload.path).detect
+    end
   end
 end
 ```
+
+#### CAVEAT
+
+It isn't ideal to handle your attachment processing synchronously during the web request. For usage with `Sidekiq` or `DelayedJob`, look at the reference code in `sample/user.*.rb`
+
 
 ## Contributing
 
