@@ -10,7 +10,7 @@ Gem::Specification.new do |gem|
   gem.summary       = 'Direct S3 upload using CORS with s3_file_field + paperclip'
   gem.homepage      = 'https://github.com/jollygoodcode/s3ff'
 
-  gem.files         = Dir['{lib,app}/**/*'] + ['README.md']
+  gem.files         = Dir['{lib,app,vendor}/**/*'] + ['README.md']
   gem.executables   = gem.files.grep(%r{^bin/}).map { |f| File.basename(f) }
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.name          = 's3ff'
