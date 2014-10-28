@@ -111,13 +111,10 @@ class User < ActiveRecord::Base
   # s3ff changes
 
   def avatar_direct_url=(value)
-    self.avatar =
-      ActionDispatch::Http::UploadedFile.new(
-        tempfile: open(value),
-        filename: File.basename(value),
-      ).tap do |upload|
-      upload.content_type = Paperclip::ContentTypeDetector.new(upload.path).detect
-    end
+    self.attributes = {
+      avatar: open(value),
+      avatar_file_name: File.basename(value),
+    }
   end
 end
 ```
