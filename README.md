@@ -23,7 +23,7 @@ Or install it yourself as:
 
 ### 1. Configure s3_file_field
 
-add a config like `sample/config_s3_file_field.rb` into your Rails `config/initializers/` directory
+add a config like [sample/config_s3_file_field.rb](https://github.com/jollygoodcode/s3ff/blob/master/sample/config_s3_file_field.rb) into your Rails `config/initializers/` directory
 
 ### 2. Add javascript
 
@@ -111,17 +111,19 @@ class User < ActiveRecord::Base
   # s3ff changes
 
   def avatar_direct_url=(value)
-    self.attributes = {
-      avatar: open(value),
-      avatar_file_name: File.basename(value),
-    }
+    open(value) do |file|
+      self.attributes = {
+        avatar: file,
+        avatar_file_name: File.basename(value),
+      }
+    end
   end
 end
 ```
 
 #### CAVEAT
 
-It isn't ideal to handle your attachment processing synchronously during the web request. For usage with `Sidekiq` or `DelayedJob`, look at the reference code in `sample/user.*.rb`
+It is not ideal to handle your attachment processing synchronously inside the web request. For usage with `Sidekiq` or `DelayedJob`, look at the reference code in [sample/user.*.rb](https://github.com/jollygoodcode/s3ff/tree/master/sample)
 
 
 ## Contributing

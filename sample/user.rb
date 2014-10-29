@@ -7,9 +7,11 @@ class User < ActiveRecord::Base
   # s3ff changes
 
   def avatar_direct_url=(value)
-    self.attributes = {
-      avatar: open(value),
-      avatar_file_name: File.basename(value),
-    }
+    open(value) do |file|
+      self.attributes = {
+        avatar: file,
+        avatar_file_name: File.basename(value),
+      }
+    end
   end
 end

@@ -9,10 +9,12 @@ class User < ActiveRecord::Base
   after_save :download_direct_url, if: -> { avatar_direct_url.present? && avatar_direct_url_changed? }
 
   def download_direct_url
-    update_attributes(
-      avatar: open(avatar_direct_url),
-      avatar_file_name: File.basename(avatar_direct_url),
-    )
+    open(avatar_direct_url) do |file|
+      update(
+        avatar: file,
+        avatar_file_name: File.basename(avatar_direct_url),
+      )
+    end
   end
 
   handle_asynchronously :download_direct_url
