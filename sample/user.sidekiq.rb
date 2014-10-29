@@ -13,7 +13,7 @@ class User < ActiveRecord::Base
   end
 
   def self.download_direct_url(user_id, avatar_direct_url)
-    open(avatar_direct_url) do |file|
+    open(avatar_direct_url, ssl_verify_mode: OpenSSL::SSL::VERIFY_NONE) do |file|
       User.find(user_id).update(
         avatar: file,
         avatar_file_name: File.basename(avatar_direct_url),

@@ -111,7 +111,7 @@ class User < ActiveRecord::Base
   # s3ff changes
 
   def avatar_direct_url=(value)
-    open(value) do |file|
+    open(value, ssl_verify_mode: OpenSSL::SSL::VERIFY_NONE) do |file|
       self.attributes = {
         avatar: file,
         avatar_file_name: File.basename(value),
