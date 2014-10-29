@@ -24,6 +24,10 @@ $(function() {
       };
 
       var s3ff_handlers = {
+        drop: function(e, data) {
+          if (that[0] != e.originalEvent.target) return e.preventDefault();
+          if (! multi) label.children('.s3ff_section').remove();
+        },
         change: function(e, data) {
           if (! multi) label.children('.s3ff_section').remove();
         },
