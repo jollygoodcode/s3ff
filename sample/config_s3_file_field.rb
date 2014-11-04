@@ -1,11 +1,10 @@
 if defined?(S3FileField) && ENV['AWS_KEY']
-  cdn_hostname = ENV.fetch('CDN_HOSTNAME') { ENV['S3_BUCKET'] && "#{ENV['S3_BUCKET']}.s3.amazonaws.com" }
   S3FileField.config do |c|
     c.access_key_id = ENV['AWS_KEY']
     c.secret_access_key = ENV['AWS_SECRET']
     c.bucket = ENV['S3_BUCKET']
-    c.region = ENV['S3_BUCKET_REGION'] || 'us-west-2'
-    c.url = "//#{cdn_hostname}" if cdn_hostname # S3 API endpoint (optional), eg. "https://#{c.bucket}.s3.amazonaws.com/"
+    c.url = ENV['CDN_URL_PREFIX'] if ENV['CDN_URL_PREFIX'].present? # S3 API endpoint (optional), eg. "https://#{bucket}.s3.amazonaws.com/"
+    # c.region = 's3-us-middle-3' # note the 's3-' prefix; defaults to 's3' US Standard
     # c.acl = "public-read"
     # c.expiration = 10.hours.from_now.utc.iso8601
     # c.max_file_size = 100.megabytes
