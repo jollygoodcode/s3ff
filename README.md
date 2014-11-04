@@ -132,7 +132,7 @@ class User < ActiveRecord::Base
 
   # s3ff changes
   # for delayed_job, you MUST add a `avatar_direct_url` database column of string type
-  # for sidekiq, `avatar_direct_url` is a virtual attribute; adding a database column is optional
+  # for sidekiq, a virtual attribute `avatar_direct_url` will be added
   download_from_direct_url_with_delay :avatar
 end
 ```
