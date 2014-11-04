@@ -1,9 +1,11 @@
 require 's3_file_field'
 require 's3ff/view_helper'
+require 's3ff/model_helper'
 require 's3ff/railtie'
 require 's3ff/engine'
 
 ActionView::Base.send(:include, S3FF::ViewHelper)
+ActiveRecord::Base.send(:extend, S3FF::ModelHelper)
 
 S3FileField::FormBuilder.class_eval do
   def s3_file_field_with_s3ff(method, options = {})

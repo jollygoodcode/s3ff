@@ -123,8 +123,19 @@ end
 
 #### CAVEAT
 
-It is not ideal to handle your attachment processing synchronously inside the web request. For usage with `Sidekiq` or `DelayedJob`, look at the reference code in [sample/user.*.rb](https://github.com/jollygoodcode/s3ff/tree/master/sample)
+It is not ideal to handle your attachment processing synchronously inside the web request. If you have `Sidekiq` or `DelayedJob` installed, you should use the `download_from_direct_url_with_delay` helper method instead
 
+``` ruby
+class User < ActiveRecord::Base
+  has_attached_file :avatar
+  validates_attachment_content_type :avatar, content_type: /\Aimage\/.*\Z/
+
+  # s3ff changes
+  # for delayed_job, you MUST add a `avatar_direct_url` database column of string type
+  # for sidekiq, `avatar_direct_url` is a virtual attribute; adding a database column is optional
+  download_from_direct_url_with_delay :avatar
+end
+```
 
 ## Contributing
 
