@@ -3,7 +3,16 @@ module S3FF
     def download_from_direct_url_with_delay(attr_name)
       if self.respond_to?(:delay)
         self.class_eval <<-EOM
-          attr_accessor :#{attr_name}_direct_url
+
+          def #{attr_name}_direct_url
+            @#{attr_name}_direct_url
+          end
+
+          def #{attr_name}_direct_url=(val)
+            self.#{attr_name}_updated_at = Time.now if val != @#{attr_name}_direct_url
+            @#{attr_name}_direct_url = val
+          end
+
           after_save :delay_s3ff_download_direct_url, if: proc { #{attr_name}_direct_url.present? }
 
           def delay_s3ff_download_direct_url
