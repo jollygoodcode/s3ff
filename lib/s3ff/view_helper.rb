@@ -24,12 +24,12 @@ module S3FF
           </div>
         </script>
         <script id="s3ff_done" type="text/x-tmpl">
-          {{for files}}
-            <button class="close" data-dismiss="alert" data-target="#upload-{{:unique_id}}" style="margin-right:4px;" type="button">
-              <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
-            </button>
-          {{/for}}
           <span class="form-control">
+            {{for files}}
+              <button class="close" data-dismiss="alert" data-target="#upload-{{:unique_id}}" style="margin-right:4px;" type="button">
+                <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+              </button>
+            {{/for}}
             <span class="fa fa-file-o"></span>
             {{:result.filename}}
             {{if result.filesize}}
