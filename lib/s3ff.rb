@@ -20,17 +20,16 @@ S3FileField::FormBuilder.class_eval do
       # this means we're re-rendering :. we should prepopulate the s3ff fields to avoid re-uploading
       options[:data] ||= {}
       options[:data].merge!({
-        s3ff: {
-          files: [{
-            unique_id: "#{object_name.to_s.parameterize}#{SecureRandom.hex}",
-          }],
+        s3ff: [{
+          fieldname: "#{object_name.to_s}[#{direct_url_attr}]",
+          unique_id: "#{object_name.to_s.parameterize}#{SecureRandom.hex}",
           result: {
             filename: changes["#{method}_file_name"].try(:last) || File.basename(new_direct_url),
             filesize: changes["#{method}_file_size"].try(:last),
             filetype: changes["#{method}_content_type"].try(:last),
             url: new_direct_url,
-          }
-        }
+          },
+        }],
       })
     end
     s3_file_field_without_s3ff(method, options)

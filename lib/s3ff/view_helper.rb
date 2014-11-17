@@ -1,44 +1,42 @@
 module S3FF
   module ViewHelper
-    def include_s3ff_templates(map = { _direct_url: 'result.url' }) # extras: , _file_name: 'result.filename', _file_size: 'result.filesize', _content_type: 'result.filetype' })
+    def include_s3ff_templates
       <<-EOM
       <div style="display:none;">
-        <script id="s3ff_label" type="text/x-tmpl">
-          <label class="s3ff_label" style="display:block;"></label>
-        </script>
-        <script id="s3ff_upload" type="text/x-tmpl" data-jsv-tmpl="_0">
-          <div class="s3ff_section" id="upload-{{:unique_id}}" style="margin-top:1em;">
+        <script id="s3ff_template" type="text/x-tmpl">
+          {^{if failReason}}
             <div class="progress s3ff_progress">
-              <div class="progress-bar progress-bar-striped active s3ff_bar" style="width: 0%"></div>
+              <div class="progress-bar progress-bar-danger s3ff_bar" style="width:80%;">
+                <span class="fa fa-exclamation-triangle"></span>
+                {^{:failReason}}
+              </div>
             </div>
-          </div>
-        </script>
-        <script id="s3ff_fail" type="text/x-tmpl">
-          <div class="progress-bar progress-bar-danger" style="width: 80%">
-            <span class="fa fa-exclamation-triangle"></span>
-            {{if failReason}}
-              {{:failReason}}
-            {{else}}
-              Upload failed!
+          {^{else}}
+            <div class="progress s3ff_progress" style="display:none;">
+              <div class="progress-bar progress-bar-striped active s3ff_bar" style="width:0%;"></div>
+            </div>
+          {{/if}}
+          {^{if result}}
+            <div class="thumbnail" id="upload-{{:unique_id}}">
+              <input type="hidden" data-link="name{:fieldname} value:{:result.url}"/>
+              {^{if placeholder_url}}
+                <img data-link="src{:result.url} alt{:result.filename}">
+              {{/if}}
+              <div class="caption">
+                <button class="close" data-dismiss="alert" data-unique_id="{{:unique_id}}" data-target="#upload-{{:unique_id}}" style="margin-left:1em;" type="button">
+                  <span aria-hidden="true">&times;</span><span class="sr-only">Remove</span>
+                </button>
+                <span class="fa fa-file-o"></span>
+                {^{:result.filename}}
+              </div>
+            </div>
+          {^{else}}
+            {^{if placeholder_url}}
+              <div class="thumbnail" id="upload-{{:unique_id}}">
+                <img data-link="src{:placeholder_url}">
+              </div>
             {{/if}}
-          </div>
-        </script>
-        <script id="s3ff_done" type="text/x-tmpl">
-          <span class="form-control">
-            {{for files}}
-              <button class="close" data-dismiss="alert" data-target="#upload-{{:unique_id}}" style="margin-right:4px;" type="button">
-                <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
-              </button>
-            {{/for}}
-            <span class="fa fa-file-o"></span>
-            {{:result.filename}}
-            {{if result.filesize}}
-            ({{:result.filesize}} bytes)
-            {{/if}}
-          </span>
-          <div style="display:none;">
-            #{map.collect {|k,v| "<input name=\"{{>~field_prefix}}#{k}]\" type=\"hidden\" value=\"{{:#{v}}}\" />" }.join}
-          </div>
+          {{/if}}
         </script>
       </div>
       EOM
