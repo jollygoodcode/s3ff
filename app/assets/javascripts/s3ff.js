@@ -19,9 +19,9 @@ $(function() {
 
           var that = $(this).addClass('s3ff_enabled');
           var multi = that.attr('multiple');
-          var placeholder_url = that.data('placeholder-url') || that.data('placeholder_url');
+          var placeholder = that.data('placeholder');
           var obj = that.data('s3ff') || [ {} ];
-          $.each(obj, function() { this.placeholder_url = placeholder_url; });
+          $.each(obj, function() { this.placeholder = placeholder; });
           var wrap = that.wrap('<div class="s3ff_fileinput_wrap"></div>').parent();
           var dom = $('<label class="s3ff_fileinput_label"></label>').attr('for', that.attr('id'));
           wrap.after(dom);
@@ -52,7 +52,7 @@ $(function() {
               $.each(obj, function() {
                 if (data.files[0].unique_id == this.unique_id) {
                   dom.find('.s3ff_bar').parent().show();
-                  this.placeholder_url = placeholder_url;
+                  this.placeholder = placeholder;
                 }
               });
               // $.observable(obj).refresh(obj); // progress bar animation doesn't work

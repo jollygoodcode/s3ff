@@ -19,7 +19,7 @@ module S3FF
           {^{if result}}
             <div class="thumbnail" id="upload-{{:unique_id}}">
               <input type="hidden" data-link="name{:fieldname} value:{:result.url}"/>
-              {^{if placeholder_url}}
+              {^{if placeholder}}
                 <img data-link="src{:result.url} alt{:result.filename}">
               {{/if}}
               <div class="caption">
@@ -31,9 +31,17 @@ module S3FF
               </div>
             </div>
           {^{else}}
-            {^{if placeholder_url}}
+            {^{if placeholder}}
               <div class="thumbnail" id="upload-{{:unique_id}}">
-                <img data-link="src{:placeholder_url}">
+                {^{if placeholder.url}}
+                  <img data-link="src{:placeholder.url}">
+                {{/if}}
+                {^{if placeholder.filename}}
+                  <div class="caption">
+                    <span class="fa fa-file-o"></span>
+                    {^{:placeholder.filename}}
+                  </div>
+                {{/if}}
               </div>
             {{/if}}
           {{/if}}
