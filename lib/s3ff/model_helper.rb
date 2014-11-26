@@ -9,7 +9,7 @@ module S3FF
           end
 
           def #{attr_name}_direct_url=(val)
-            self.#{attr_name}_updated_at = Time.now if val != @#{attr_name}_direct_url
+            self.updated_at = Time.now if val != @#{attr_name}_direct_url
             @#{attr_name}_direct_url = val
           end
 
