@@ -5,16 +5,22 @@ module S3FF
       <div style="display:none;">
         <script id="s3ff_template" type="text/x-tmpl">
           {^{if failReason}}
-            <div class="progress s3ff_progress">
-              <div class="progress-bar progress-bar-danger s3ff_bar" style="width:80%;">
+            <div class="progress s3ff_progress" id="s3ff_progress-{{:unique_id}}">
+              <div class="progress-bar progress-bar-danger s3ff_bar" style="width:{{:progress_pct}}">
                 <span class="fa fa-exclamation-triangle"></span>
                 {^{:failReason}}
               </div>
             </div>
           {^{else}}
-            <div class="progress s3ff_progress" style="display:none;">
-              <div class="progress-bar progress-bar-striped active s3ff_bar" style="width:0%;"></div>
-            </div>
+            {^{if progress_pct}}
+              <div class="progress s3ff_progress" id="s3ff_progress-{{:unique_id}}">
+                <div class="progress-bar progress-bar-striped active s3ff_bar" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:{{:progress_pct}}">{{:name}}</div>
+              </div>
+            {^{else}}
+              <div class="progress s3ff_progress" id="s3ff_progress-{{:unique_id}}" style="display:none;">
+                <div class="progress-bar progress-bar-striped active s3ff_bar" style="width:0%;"></div>
+              </div>
+            {{/if}}
           {{/if}}
           {^{if result}}
             <div class="thumbnail" id="upload-{{:unique_id}}">
@@ -32,17 +38,19 @@ module S3FF
             </div>
           {^{else}}
             {^{if placeholder}}
-              <div class="thumbnail" id="upload-{{:unique_id}}">
-                {^{if placeholder.url}}
-                  <img data-link="src{:placeholder.url}">
-                {{/if}}
-                {^{if placeholder.filename}}
-                  <div class="caption">
-                    <span class="fa fa-file-o"></span>
-                    {^{:placeholder.filename}}
-                  </div>
-                {{/if}}
-              </div>
+              {^{if placeholder.url || placeholder.filename}}
+                <div class="thumbnail" id="upload-{{:unique_id}}">
+                  {^{if placeholder.url}}
+                    <img data-link="src{:placeholder.url}">
+                  {{/if}}
+                  {^{if placeholder.filename}}
+                    <div class="caption">
+                      <span class="fa fa-file-o"></span>
+                      {^{:placeholder.filename}}
+                    </div>
+                  {{/if}}
+                </div>
+              {{/if}}
             {{/if}}
           {{/if}}
         </script>

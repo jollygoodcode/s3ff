@@ -42,36 +42,37 @@ $(function() {
 
           var s3ff_handlers = {
             drop: function(e, data) {
-              if (that[0] != e.originalEvent.target) return e.preventDefault();
-              if (! multi) $.observable(obj).refresh(data.files);
+              if (e.delegatedEvent.target.parentNode != wrap[0]) return e.preventDefault();
+              $.observable(obj).refresh(data.files);
             },
             change: function(e, data) {
-              if (! multi) $.observable(obj).refresh(data.files);
+              $.observable(obj).refresh(data.files);
             },
             send: function(e, data) {
               $.each(obj, function() {
                 if (data.files[0].unique_id == this.unique_id) {
-                  dom.find('.s3ff_bar').parent().show();
+                  this.progress_pct = "0%";
                   this.placeholder = placeholder;
                 }
               });
-              // $.observable(obj).refresh(obj); // progress bar animation doesn't work
+              $.observable(obj).refresh(obj);
             },
             progress: function(e, data) {
+              // $.observable(obj).refresh(obj); // progress bar animation doesn't work
+              // :. adjust manually
               $.each(obj, function() {
                 if (data.files[0].unique_id == this.unique_id) {
-                  this.progress = (parseInt(data.loaded / data.total * 100, 10)) + "%";
-                  dom.find('.s3ff_bar').css({width: this.progress}).text(this.progress);
+                  this.progress_pct = (parseInt(data.loaded / data.total * 100, 10)) + "%";
+                  dom.find('#s3ff_progress-' + this.unique_id).show().find('.s3ff_bar').css({width: this.progress_pct}).text(this.name);
                 }
               });
-              // $.observable(obj).refresh(obj); // progress bar animation doesn't work
             },
             done: function(e, data) {
-              var field_prefix = that.attr('name').replace(/\]$/, '');
+              var field_prefix = that.attr('name').replace(/(\]\[\]|\])$/, '');
               $.each(obj, function() {
                 if (data.files[0].unique_id == this.unique_id) {
-                  delete this.progress;
-                  this.fieldname = field_prefix + '_direct_url';
+                  delete this.progress_pct;
+                  this.fieldname = field_prefix + '_direct_url]' + (multi ? '[]' : '');
                   this.result = data.result;
                 }
               });
@@ -81,7 +82,6 @@ $(function() {
               $.each(obj, function() {
                 if (data.files[0].unique_id == this.unique_id) {
                   this.progress_pct = "80%";
-                  this.progress_style = "width:" + this.progress_pct;
                   this.failReason = data.failReason || data.textStatus || 'Failed!';
                 }
               });
@@ -89,7 +89,7 @@ $(function() {
             },
             add: function(e, data) {
               // beginning; disable submit
-              wrap.parents("form").find("[type='submit']").each(function() {
+              wrap.parents("form").find("button,[type='submit']").each(function() {
                 this.uploading = this.uploading || 0;
                 $(this).attr({'disabled': (++this.uploading > 0)});
               });
@@ -97,7 +97,7 @@ $(function() {
             },
             always: function(e, data) {
               // end; re-enable submit
-              wrap.parents("form").find("[type='submit']").each(function() {
+              wrap.parents("form").find("button,[type='submit']").each(function() {
                 this.uploading = this.uploading || 0;
                 $(this).attr({'disabled': (--this.uploading > 0)});
               });
@@ -110,5 +110,18 @@ $(function() {
     }
     $(s3ff.selector).each(s3ff.init);
     $(document).on("mouseenter mousedown touchstart", s3ff.selector, s3ff.init);
+  });
+
+  $(document).bind('dragover', function (e) {
+    var timeout = s3ff.dropZoneTimeout;
+    if (! timeout) {
+      $(document.body).addClass('s3ff_dragover');
+    } else {
+      clearTimeout(timeout);
+    }
+    s3ff.dropZoneTimeout = setTimeout(function () {
+      $(document.body).removeClass('s3ff_dragover');
+      s3ff.dropZoneTimeout = null;
+    }, 100);
   });
 });
