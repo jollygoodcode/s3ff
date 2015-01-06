@@ -19,18 +19,18 @@ S3FileField::FormBuilder.class_eval do
     if new_direct_url.present?
       # this means we're re-rendering :. we should prepopulate the s3ff fields to avoid re-uploading
       options[:data] ||= {}
-      options[:data].merge!({
-        s3ff: [{
-          fieldname: "#{object_name.to_s}[#{direct_url_attr}]",
-          unique_id: "#{object_name.to_s.parameterize}#{SecureRandom.hex}",
-          result: {
-            filename: changes["#{method}_file_name"].try(:last) || File.basename(new_direct_url),
-            filesize: changes["#{method}_file_size"].try(:last),
-            filetype: changes["#{method}_content_type"].try(:last),
-            url: new_direct_url,
-          },
-        }],
-      })
+      options[:data][:s3ff] ||= begin
+        [*new_direct_url].collect do |url|
+          {
+            fieldname: "#{object_name.to_s}[#{direct_url_attr}]#{options[:multiple] ? '[]' : ''}",
+            unique_id: "#{object_name.to_s.parameterize}#{SecureRandom.hex}",
+            result: {
+              filename: File.basename(url),
+              url: url,
+            },
+          }
+        end
+      end
     end
     s3_file_field_without_s3ff(method, options)
   end

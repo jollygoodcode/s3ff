@@ -10,6 +10,14 @@ $(function() {
   }
   if (! iCanHasCORSRequest()) return;
 
+  function makeArray(value) {
+    if (Array.isArray(value)) {
+      return value;
+    } else {
+      return Array(value);
+    }
+  }
+
   $(document).on('page:change', function() {
     if (!window.s3ff) {
       window.s3ff = {
@@ -19,9 +27,10 @@ $(function() {
 
           var that = $(this).addClass('s3ff_enabled');
           var multi = that.attr('multiple');
-          var placeholder = that.data('placeholder');
-          var obj = that.data('s3ff') || [ {} ];
-          $.each(obj, function() { this.placeholder = placeholder; });
+          var placeholders = makeArray(that.data('placeholder'));
+          var obj = that.data('s3ff') || placeholders;
+          function assign_matching_placeholder(i) { this.placeholder = (placeholders[i] || (placeholders[0] && {})); };
+          $.each(obj, assign_matching_placeholder);
           var wrap = that.wrap('<div class="s3ff_fileinput_wrap"></div>').parent();
           var dom = $('<label class="s3ff_fileinput_label"></label>').attr('for', that.attr('id'));
           wrap.after(dom);
@@ -43,16 +52,17 @@ $(function() {
           var s3ff_handlers = {
             drop: function(e, data) {
               if ((e.delegatedEvent || e.originalEvent).target.parentNode != wrap[0]) return e.preventDefault();
+              $.each(data.files, assign_matching_placeholder);
               $.observable(obj).refresh(data.files);
             },
             change: function(e, data) {
+              $.each(data.files, assign_matching_placeholder);
               $.observable(obj).refresh(data.files);
             },
             send: function(e, data) {
               $.each(obj, function() {
                 if (data.files[0].unique_id == this.unique_id) {
                   this.progress_pct = "0%";
-                  this.placeholder = placeholder;
                 }
               });
               $.observable(obj).refresh(obj);
