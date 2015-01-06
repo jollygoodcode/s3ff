@@ -42,7 +42,7 @@ $(function() {
 
           var s3ff_handlers = {
             drop: function(e, data) {
-              if (e.delegatedEvent.target.parentNode != wrap[0]) return e.preventDefault();
+              if ((e.delegatedEvent || e.originalEvent).target.parentNode != wrap[0]) return e.preventDefault();
               $.observable(obj).refresh(data.files);
             },
             change: function(e, data) {
