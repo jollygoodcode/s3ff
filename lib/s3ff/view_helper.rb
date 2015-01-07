@@ -32,24 +32,31 @@ module S3FF
                 <button class="close" data-dismiss="alert" data-unique_id="{{:unique_id}}" data-target="#upload-{{:unique_id}}" style="margin-left:1em;" type="button">
                   <span aria-hidden="true">&times;</span><span class="sr-only">Remove</span>
                 </button>
-                <span class="fa fa-file-o"></span>
-                {^{:result.filename}}
+                <span class="filename">
+                  <span class="fa fa-file-o"></span>
+                  {^{:result.filename}}
+                </span>
               </div>
             </div>
           {^{else}}
-            {^{if placeholder}}
-              {^{if placeholder.url || placeholder.filename}}
-                <div class="thumbnail" id="upload-{{:unique_id}}">
-                  {^{if placeholder.url}}
-                    <img data-link="src{:placeholder.url}">
-                  {{/if}}
-                  {^{if placeholder.filename}}
-                    <div class="caption">
-                      <span class="fa fa-file-o"></span>
-                      {^{:placeholder.filename}}
-                    </div>
-                  {{/if}}
-                </div>
+            {^{if !progress_pct}}
+              {^{if placeholder}}
+                {^{if placeholder.url || placeholder.filename}}
+                  <div class="thumbnail" id="upload-{{:placeholder.id}}">
+                    {^{if placeholder.url}}
+                      <img data-link="src{:placeholder.url}">
+                    {{/if}}
+                    {^{if placeholder.filename}}
+                      <div class="caption">
+                        {^{:placeholder.remove_existing_link}}
+                        <span class="filename">
+                          <span class="fa fa-file-o"></span>
+                          {^{:placeholder.filename}}
+                        </span>
+                      </div>
+                    {{/if}}
+                  </div>
+                {{/if}}
               {{/if}}
             {{/if}}
           {{/if}}
