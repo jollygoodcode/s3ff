@@ -10,14 +10,6 @@ $(function() {
   }
   if (! iCanHasCORSRequest()) return;
 
-  function makeArray(value) {
-    if (Array.isArray(value)) {
-      return value;
-    } else {
-      return Array(value);
-    }
-  }
-
   $(document).on('page:change', function() {
     if (!window.s3ff) {
       window.s3ff = {
@@ -27,7 +19,7 @@ $(function() {
 
           var that = $(this).addClass('s3ff_enabled');
           var multi = that.attr('multiple');
-          var placeholders = makeArray(that.data('placeholder'));
+          var placeholders = $.makeArray(that.data('placeholder'));
           var obj = that.data('s3ff') || placeholders;
           function assign_matching_placeholder(i) { this.placeholder = (placeholders[i] || (placeholders[0] && {})); };
           $.each(obj, assign_matching_placeholder);
