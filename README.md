@@ -1,3 +1,11 @@
+# DEPRECATED
+
+S3FF is no longer used or maintained by Jolly Good Code. Please use [attache][attache] instead.
+
+Thanks!
+
+[attache]: https://github.com/choonkeat/attache
+
 # S3FF
 
 Using [s3_file_field][] with [paperclip][].
